@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Visual Daily Schedule for Kids</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      background-color: #fef6e4;
+    }
+    .task-card {
+      border-radius: 15px;
+      transition: transform 0.2s;
+    }
+    .task-card:hover {
+      transform: scale(1.03);
+    }
+    .done {
+      text-decoration: line-through;
+      opacity: 0.5;
+    }
+  </style>
+</head>
+<body>
+  <div class="container py-4">
+    <h1 class="text-center mb-4 text-primary">🌞 My Daily Schedule</h1>
+
+    <div class="row row-cols-1 row-cols-md-2 g-4" id="taskList">
+      <!-- Task cards will go here -->
+      <div class="col">
+        <div class="card task-card shadow p-3" onclick="markDone(this)">
+          <img src="https://cdn-icons-png.flaticon.com/512/3062/3062634.png" class="card-img-top" alt="Brush Teeth" style="width: 100px; margin: auto;">
+          <div class="card-body text-center">
+            <h5 class="card-title">Brush Teeth</h5>
+          </div>
+        </div>
+      </div>
+
+      <div class="col">
+        <div class="card task-card shadow p-3" onclick="markDone(this)">
+          <img src="https://cdn-icons-png.flaticon.com/512/2331/2331932.png" class="card-img-top" alt="Eat Breakfast" style="width: 100px; margin: auto;">
+          <div class="card-body text-center">
+            <h5 class="card-title">Eat Breakfast</h5>
+          </div>
+        </div>
+      </div>
+
+      <div class="col">
+        <div class="card task-card shadow p-3" onclick="markDone(this)">
+          <img src="https://cdn-icons-png.flaticon.com/512/1980/1980024.png" class="card-img-top" alt="School Time" style="width: 100px; margin: auto;">
+          <div class="card-body text-center">
+            <h5 class="card-title">School Time</h5>
+          </div>
+        </div>
+      </div>
+
+      <div class="col">
+        <div class="card task-card shadow p-3" onclick="markDone(this)">
+          <img src="https://cdn-icons-png.flaticon.com/512/1101/1101780.png" class="card-img-top" alt="Play Time" style="width: 100px; margin: auto;">
+          <div class="card-body text-center">
+            <h5 class="card-title">Play Time</h5>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!-- JS for interaction -->
+  <script>
+    function markDone(card) {
+      card.classList.toggle('done');
+    }
+  </script>
+</body>
+</html>
