@@ -27,8 +27,15 @@
   <div class="container py-4">
     <h1 class="text-center mb-4 text-primary">🌞 My Daily Schedule</h1>
     	<div class="text-center mb-4">
-   	<button class="btn btn-warning" onclick="resetTasks()">🔄 Reset Schedule</button>
+   	<button class="btn btn-warning fw-bold px-4 py-2 rounded-pill" onclick="resetTasks()">🔄 Reset Schedule</button>
      	</div>
+	
+	<div class="text-center mb-4">
+  	<input type="text" id="newTaskName" class="form-control d-inline-block w-50" placeholder="Enter new task (e.g. Homework)">
+  	<button class="btn btn-success mt-2" onclick="addNewTask()">➕ Add Task</button>
+	</div>
+
+
     <div class="row row-cols-1 row-cols-md-2 g-4" id="taskList">
       <!-- Task cards will go here -->
       <div class="col">
@@ -70,52 +77,196 @@
   </div>
 
   <!-- Bootstrap JS -->
-  <script>
-  // Mark a task done and update localStorage
+  
+<script>
+  // Mark a task done and save
   function markDone(card) {
     card.classList.toggle('done');
     saveProgress();
   }
 
-  // Save progress to localStorage
+  // Save both built-in and custom task states
   function saveProgress() {
     const taskCards = document.querySelectorAll('.task-card');
     const doneTasks = [];
+    const customTasks = [];
 
     taskCards.forEach(card => {
       const title = card.querySelector('.card-title').innerText;
       if (card.classList.contains('done')) {
         doneTasks.push(title);
       }
+      // If it's a custom task (manually added), record it
+      if (card.classList.contains('custom-task')) {
+        customTasks.push(title);
+      }
     });
 
     localStorage.setItem('doneTasks', JSON.stringify(doneTasks));
+    localStorage.setItem('customTasks', JSON.stringify(customTasks));
   }
 
-  // Load progress from localStorage
+  // Load saved tasks and mark done if applicable
   function loadProgress() {
-    const saved = JSON.parse(localStorage.getItem('doneTasks')) || [];
-    const taskCards = document.querySelectorAll('.task-card');
+    const doneTasks = JSON.parse(localStorage.getItem('doneTasks')) || [];
+    const customTasks = JSON.parse(localStorage.getItem('customTasks')) || [];
 
+    // First, re-add custom tasks
+    customTasks.forEach(title => {
+      createTaskCard(title, true);
+    });
+
+    // Then mark all completed tasks
+    const taskCards = document.querySelectorAll('.task-card');
     taskCards.forEach(card => {
       const title = card.querySelector('.card-title').innerText;
-      if (saved.includes(title)) {
+      if (doneTasks.includes(title)) {
         card.classList.add('done');
       }
     });
   }
 
-  // Reset all tasks
+
+  // Reset schedule and clear memory
   function resetTasks() {
+  const resetModal = new bootstrap.Modal(document.getElementById('resetModal'));
+  resetModal.show();
+}
+
+
+function confirmReset(keepCustom) {
+  if (keepCustom) {
+    // Just unmark all tasks
     const taskCards = document.querySelectorAll('.task-card');
-    taskCards.forEach(card => {
-      card.classList.remove('done');
-    });
+    taskCards.forEach(card => card.classList.remove('done'));
     localStorage.removeItem('doneTasks');
+  } else {
+    // Clear everything and rebuild default tasks
+    localStorage.removeItem('doneTasks');
+    localStorage.removeItem('customTasks');
+    document.getElementById('taskList').innerHTML = '';
+    createOriginalTasks();
+  }
+}
+
+
+
+  // Add new task from input
+  function addNewTask() {
+    const input = document.getElementById('newTaskName');
+    const title = input.value.trim();
+    if (title !== '') {
+      createTaskCard(title, true); // mark as custom
+      input.value = '';
+      saveProgress();
+    }
   }
 
-  // Load saved data when the app starts
-  window.onload = loadProgress;
+  // Create a task card and add to DOM
+  function createTaskCard(title, isCustom = false) {
+    const taskList = document.getElementById('taskList');
+
+    const col = document.createElement('div');
+    col.className = 'col';
+
+    const card = document.createElement('div');
+    card.className = 'card task-card shadow p-3';
+    if (isCustom) card.classList.add('custom-task');
+    card.setAttribute('onclick', 'markDone(this)');
+
+    const body = document.createElement('div');
+    body.className = 'card-body text-center';
+
+    const taskTitle = document.createElement('h5');
+    taskTitle.className = 'card-title';
+    taskTitle.innerText = title;
+
+    // Placeholder icon
+    const img = document.createElement('img');
+    img.src = 'https://cdn-icons-png.flaticon.com/512/847/847969.png';
+    img.className = 'card-img-top';
+    img.alt = title;
+    img.style.width = '100px';
+    img.style.margin = 'auto';
+
+    body.appendChild(taskTitle);
+    card.appendChild(img);
+    card.appendChild(body);
+    col.appendChild(card);
+    taskList.appendChild(col);
+  }
+
+  // Manually re-add original tasks after reset
+  function createOriginalTasks() {
+  const builtIn = [
+    { title: 'Brush Teeth', img: 'https://cdn-icons-png.flaticon.com/512/3062/3062634.png' },
+    { title: 'Eat Breakfast', img: 'https://cdn-icons-png.flaticon.com/512/2331/2331932.png' },
+    { title: 'School Time', img: 'https://cdn-icons-png.flaticon.com/512/1980/1980024.png' },
+    { title: 'Play Time', img: 'https://cdn-icons-png.flaticon.com/512/1101/1101780.png' }
+  ];
+
+  const taskList = document.getElementById('taskList');
+  taskList.innerHTML = ''; // ✅ clear existing tasks
+
+  builtIn.forEach(task => {
+    const col = document.createElement('div');
+    col.className = 'col';
+
+    const card = document.createElement('div');
+    card.className = 'card task-card shadow p-3';
+    card.setAttribute('onclick', 'markDone(this)');
+
+    const img = document.createElement('img');
+    img.src = task.img;
+    img.alt = task.title;
+    img.className = 'card-img-top';
+    img.style.width = '100px';
+    img.style.margin = 'auto';
+
+    const body = document.createElement('div');
+    body.className = 'card-body text-center';
+
+    const title = document.createElement('h5');
+    title.className = 'card-title';
+    title.innerText = task.title;
+
+    body.appendChild(title);
+    card.appendChild(img);
+    card.appendChild(body);
+    col.appendChild(card);
+    taskList.appendChild(col);
+  });
+}
+
+
+  // Initialize on load
+  window.onload = function () {
+    createOriginalTasks();
+    loadProgress();
+  };
 </script>
+
+<!-- Reset Confirmation Modal -->
+<div class="modal fade" id="resetModal" tabindex="-1" aria-labelledby="resetModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header bg-warning">
+        <h5 class="modal-title" id="resetModalLabel">Reset Schedule</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        Do you want to <strong>keep your custom tasks</strong> or remove them?
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-success" onclick="confirmReset(true)" data-bs-dismiss="modal">Keep</button>
+        <button type="button" class="btn btn-danger" onclick="confirmReset(false)" data-bs-dismiss="modal">Remove</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Bootstrap JS (for modals and interactivity) -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
 </body>
 </html>
